@@ -1,78 +1,154 @@
-const url = 'http://localhost:3000/pups/'
+
+// let url = 'http://localhost:3000/pups/'
 
 document.addEventListener("DOMContentLoaded", () => {
+    let url = 'http://localhost:3000/pups/'
 
-getDogs()
+   
+        fetch(url)
+        .then(response => response.json())
+        .then(dogs => renderDogs(dogs))
+    
+    
+    function renderDogs(dogs){
+        dogs.forEach(dog => {
+            renderDog(dog)
+        })
+    }
+    
+    function renderDog(dog) {
+        let dogDiv = document.querySelector('#dog-bar')
+        let span = document.createElement('span')
+        span.innerText = dog.name
+        dogDiv.appendChild(span)
+        span.addEventListener('click', (e) => {
+            dogInfo(dog)
+        })
+    }
+    
+    function dogInfo(dog){
+        let infoDiv = document.querySelector('#dog-info')
+        infoDiv.innerHTML = `
+        <img src=${dog.image}>
+        <h2>${dog.name}</h2>`
+        let button = document.createElement('button')
+        button.innerText = dog.isGoodDog ? "Good Dog!" : "Bad Dog!"
+        infoDiv.appendChild(button)
+        button.dataset.id = dog.id 
+        button.addEventListener('click', (e) => {
+            buttonToggle(dog, button)   
+        })    
+    }
+    
+    function buttonToggle(dog, button){
+        fetch(url + dog.id,{
+            method: 'PATCH',
+            headers: {
+                'content-type': 'application/json',
+                accepts: 'application/json'
+            },
+            body: JSON.stringify({
+                isGoodDog: !dog.isGoodDog 
+            })
+        })
+        .then(response => response.json())
+        .then(dog => {
+            dogInfo(dog)
+            console.log(dog)
+        })
+    }
+
+
+    let dogFilter = document.querySelector('#good-dog-filter')
+    dogFilter.addEventListener('click', (e) => {
+    if (dogFilter.innerText === "Filter good dogs: OFF"){
+        dogFilter.innerText = "Filter good dogs: ON"
+        fetch(url)
+        .then(response => response.json())
+        .then(dogs => renderDogs(dogs.filter(dog => dog.isGoodDog === true)))
+        // mdn notes const result = words.filter(word => word.length > 6)
+    }
+    else if (dogFilter.innerText === "Filter good dogs: ON"){
+        dogFilter.innerText = "Filter good dogs: OFF"
+    }
+
+        console.log(e)
+    })
+
+    // fetchDogs()    
 })
 
-function getDogs(){
-    fetch(url)
-    .then(response => response.json())
-    .then(dogs => {
-        renderDogs(dogs)
-    })
-   } 
+// function fetchDogs(){
+//     fetch(url)
+//     .then(response => response.json())
+//     .then(dogs => renderDogs(dogs))
+// }
 
-function renderDogs(dogs) {
-    dogs.forEach(dog => {
-       renderDog(dog)
-    })
-}
+// function renderDogs(dogs){
+//     dogs.forEach(dog => {
+//         renderDog(dog)
+//     })
+// }
 
-function renderDog(dog) {
-    const dogBar = document.querySelector('#dog-bar')
-    const span = document.createElement('span')
-    span.id = dog.id
-    span.addEventListener('click', (e) => {
-        dogInfo(dog)
-       
-    })
-    
-    span.innerText = dog.name
-    dogBar.append(span)
-    
-}
+// function renderDog(dog) {
+//     let dogDiv = document.querySelector('#dog-bar')
+//     let span = document.createElement('span')
+//     span.innerText = dog.name
+//     dogDiv.appendChild(span)
+//     span.addEventListener('click', (e) => {
+//         dogInfo(dog)
+//     })
+// }
 
-function dogInfo(dog){
-    const dogInfo = document.querySelector('#dog-info')
-    dogInfo.innerHTML = ""
-    const image = document.createElement('img')
-    image.src = dog.image
-    dogInfo.append(image)
-    const h2 = document.createElement('h2')
-    h2.innerText = dog.name
-    dogInfo.append(h2)
-    const button = document.createElement('button')
-    button.innerText = (dog.isGoodDog) ? "Bad Dog!" : "Good Dog!" 
-    button.id = "dog-button"
-    button.addEventListener('click', (e) => changeBehavior(e, dog))
-    dogInfo.append(button)
-    
-}
+// function dogInfo(dog){
+//     let infoDiv = document.querySelector('#dog-info')
+//     infoDiv.innerHTML = `
+//     <img src=${dog.image}>
+//     <h2>${dog.name}</h2>`
+//     let button = document.createElement('button')
+//     button.innerText = dog.isGoodDog ? "Good Dog!" : "Bad Dog!"
+//     infoDiv.appendChild(button)
+//     button.dataset.id = dog.id 
+//     button.addEventListener('click', (e) => {
+//         buttonToggle(dog, button)   
+//     })
 
-function changeBehavior(e, dog) {
-    fetch(url + dog.id, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json",
-             "Accept": "application/json"
-        },
-        body: JSON.stringify({
-            isGoodDog: !dog.isGoodDog
-        })
-    })
-    .then(function(response) {
-        return response.json();
-      })
-      .then(function(dog) {
-          let dogButton = document.querySelectorAll('#dog-button')
-        if (dogButton.innerText === "Good Dog!")
-        {dogButton.innerText = "Bad Dog!"}
-        else if (dogButton.innerText === "Bad Dog!")
-        {dogButton.innerText = "Good Dog!"}
-        console.log(dog);
-      })
-    
-}
-    
+//     // let dogFilter = document.querySelector('#good-dog-filter')
+//     dogFilter.addEventListener('click', (e) => {
+//     if (dogFilter.innerText === "Filter good dogs: OFF"){
+//         dogFilter.innerText = "Filter good dogs: ON"
+//         fetch(url)
+//         .then(response => response.json())
+//         .then(dogs => renderDog(dog.filter(dog.isGoodDog === true)))
+//     }
+//     else if (dogFilter.innerText === "Filter good dogs: ON"){
+//         dogFilter.innerText = "Filter good dogs: OFF"
+//     }
+
+//         console.log(e)
+//     })
+
+// }
+
+// function buttonToggle(dog, button){
+//     fetch(url + dog.id,{
+//         method: 'PATCH',
+//         headers: {
+//             'content-type': 'application/json',
+//             accepts: 'application/json'
+//         },
+//         body: JSON.stringify({
+//             isGoodDog: !dog.isGoodDog 
+//         })
+//     })
+//     .then(response => response.json())
+//     .then(dog => {
+//         dogInfo(dog)
+//         console.log(dog)
+//     })
+// }
+
+// filter dog: first find the filter button, then add an event listener to it.
+// change button innerHTML based to 'on' 'off'
+
 
